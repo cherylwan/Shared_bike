@@ -43,9 +43,8 @@ def get_filters():
     print('You\'ve selected {}'.format(day.title()))
 
     print('-'*40)
-    print(city, month, day)
 
-    return city.lower(), month(), day.lower()
+    return city.lower(), month, day.title()
 
 
 def load_data(city, month, day):
@@ -61,10 +60,18 @@ def load_data(city, month, day):
     """
     df=pd.read_csv(CITY_DATA[city])
     df['Start Time'] = pd.to_datetime(df['Start Time'])
-    print(df.head())
     df['month'] = df['Start Time'].dt.month
-    print(df['month'])
+    df['day_of_week'] = df['Start Time'].dt.weekday_name
 
+    # filter by month if applicable
+    if month != 0:
+    # use the index of the months list to get the corresponding int
+        df = df[df['month'] == month]
+
+    # filter by day of week if applicable
+    if day != 'All':
+    # filter by day of week to create the new dataframe
+        df = df[df['day_of_week'] == day]
     return df
 
 
@@ -73,15 +80,23 @@ def time_stats(df):
 
     print('\nCalculating The Most Frequent Times of Travel...\n')
     start_time = time.time()
-
+    months = ['January', 'February', 'March', 'April', 'May', 'June']
     # TO DO: display the most common month
-
+    df['month'] = df['Start Time'].dt.month
+    month = df['month'].mode()[0]
+    popular_month=months[month-1]
 
     # TO DO: display the most common day of week
+    df['day_of_week'] = df['Start Time'].dt.weekday_name
+    popular_day=df['day_of_week'].mode()[0]
 
 
     # TO DO: display the most common start hour
+    df['hour'] = df['Start Time'].dt.hour
+    popular_hour = df['hour'].mode()[0]
 
+    print('Most popular month is {}, most popular day of week is {},\
+ and most popular hour is {} o\'Clock'.format(popular_month, popular_day, popular_hour))
 
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-'*40)
